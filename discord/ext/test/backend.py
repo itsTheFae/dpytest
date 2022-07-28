@@ -152,16 +152,26 @@ class FakeHttp(dhttp.HTTPClient):
             *,
             tts: bool = False,
             embed: typing.Optional[_types.JsonDict] = None,
+            embeds: typing.Optional[list[_types.JsonDict]] = None,
             nonce: typing.Optional[int] = None,
             allowed_mentions: typing.Optional[_types.JsonDict] = None,
             message_reference: typing.Optional[_types.JsonDict] = None,
+            stickers: typing.Sequence[typing.Union[discord.GuildSticker, discord.StickerItem]] = None,
+            components: list[dict[str, typing.Any]] = None,
     ) -> _types.JsonDict:
         locs = _get_higher_locs(1)
         channel = locs.get("channel", None)
 
-        embeds = []
-        if embed:
+        if embed is not None and embeds is not None:
+            raise InvalidArgument("cannot pass both embed and embeds parameter to send()")
+
+        if embed is not None:
             embeds = [discord.Embed.from_dict(embed)]
+        elif embeds is not None:
+            if len(embeds) > 10:
+                raise InvalidArgument("embeds parameter must be a list of up to 10 elements")
+            embeds = [discord.Embed.from_dict(embed) for embed in embeds]
+
         user = self.state.user
         if hasattr(channel, "guild"):
             perm = channel.permissions_for(channel.guild.get_member(user.id))
@@ -169,6 +179,8 @@ class FakeHttp(dhttp.HTTPClient):
             perm = channel.permissions_for(user)
         if not (perm.send_messages or perm.administrator):
             raise discord.errors.Forbidden(FakeRequest(403, "missing send_messages"), "send_messages")
+
+		# Stickers and Components/Views need to be handled somewhere in here, but I'm clueless on those...
 
         message = make_message(
             channel=channel, author=self.state.user, content=content, tts=tts, embeds=embeds, nonce=nonce
