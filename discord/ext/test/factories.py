@@ -285,7 +285,7 @@ def dict_from_channel(channel: _types.AnyChannel) -> _types.JsonDict:
             'id': channel.id,
             'guild_id': channel.guild.id,
             'permission_overwrites': [dict_from_overwrite(k, v) for k, v in channel.overwrites.items()],
-            'type': channel.type,
+            'type': channel.type.value,
             'parent_id': channel.category_id
         }
     if isinstance(channel, discord.CategoryChannel):
@@ -295,7 +295,7 @@ def dict_from_channel(channel: _types.AnyChannel) -> _types.JsonDict:
             'id': channel.id,
             'guild_id': channel.guild.id,
             'permission_overwrites': [dict_from_overwrite(k, v) for k, v in channel.overwrites.items()],
-            'type': channel.type
+            'type': channel.type.value
         }
 
 
