@@ -48,6 +48,6 @@ setuptools.setup(
         "Development Status :: 3 - Alpha",
         "Topic :: Software Development :: Testing"
     ],
-    keywords="discord discord.py test",
-    install_requires=["discord.py", "pytest-asyncio"]
+    keywords="discord pycord py-cord test",
+    install_requires=["pycord[speed]>=2.0.0", "pytest-asyncio"]
 )
