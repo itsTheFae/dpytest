@@ -52,7 +52,7 @@ def _get_higher_locs(num: int) -> typing.Dict[str, typing.Any]:
 
 class FakeRequest(typing.NamedTuple):
     """
-        A fake web response, for use with discord ``HTTPException``\ s
+        A fake web response, for use with discord ``HTTPException`` s
     """
     status: int
     reason: str
