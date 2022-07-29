@@ -180,7 +180,7 @@ class FakeHttp(dhttp.HTTPClient):
         if not (perm.send_messages or perm.administrator):
             raise discord.errors.Forbidden(FakeRequest(403, "missing send_messages"), "send_messages")
 
-		# Stickers and Components/Views need to be handled somewhere in here, but I'm clueless on those...
+        # Stickers and Components/Views need to be handled somewhere in here, but I'm clueless on those...
 
         message = make_message(
             channel=channel, author=self.state.user, content=content, tts=tts, embeds=embeds, nonce=nonce
@@ -204,9 +204,12 @@ class FakeHttp(dhttp.HTTPClient):
             content: typing.Optional[str] = None,
             tts: bool = False,
             embed: typing.Optional[_types.JsonDict] = None,
+            embeds: typing.Optional[list[_types.JsonDict]] = None,
             nonce: typing.Optional[int] = None,
             allowed_mentions: typing.Optional[_types.JsonDict] = None,
             message_reference: typing.Optional[_types.JsonDict] = None,
+            stickers: typing.Sequence[typing.Union[discord.GuildSticker, discord.StickerItem]] = None,
+            components: list[dict[str, typing.Any]] = None,
     ) -> _types.JsonDict:
         # allowed_mentions is being ignored.  It must be a keyword argument but I'm not yet certain what to use it for
         locs = _get_higher_locs(1)
@@ -223,9 +226,17 @@ class FakeHttp(dhttp.HTTPClient):
             attachments.append((path, file.filename))
         attachments = list(map(lambda x: make_attachment(*x), attachments))
 
-        embeds = []
-        if embed:
+        if embed is not None and embeds is not None:
+            raise InvalidArgument("cannot pass both embed and embeds parameter to send()")
+
+        if embed is not None:
             embeds = [discord.Embed.from_dict(embed)]
+        elif embeds is not None:
+            if len(embeds) > 10:
+                raise InvalidArgument("embeds parameter must be a list of up to 10 elements")
+            embeds = [discord.Embed.from_dict(embed) for embed in embeds]
+
+        # Stickers and Components/Views need to be handled somewhere in here, but I'm clueless on those...
 
         message = make_message(
             channel=channel, author=self.state.user, attachments=attachments, content=content, tts=tts, embeds=embeds,
